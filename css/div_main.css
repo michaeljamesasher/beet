@@ -1,0 +1,39 @@
+
+html, body{
+	width: 100%;
+	height: 100%;
+  overflow: hidden;
+}
+#graphBox{
+  background-color: #EEE;
+  /*background-color: transparent;*/
+  width: 50%;
+  height: 100%;
+}
+
+@media (max-width: 768px) {
+  #graphBox{
+    width: 100%;
+  }
+}
+
+/*.block iframe{
+  position: relative;
+  height: 80%;
+  top: 20%;
+}*/
+
+
+/*
+
+.dot rect {
+  fill: transparent;
+  stroke: steelblue;
+  stroke-width: 1.5px;
+}
+
+.dot .dragging rect {
+  fill: red;
+  stroke: brown;
+}
+*/

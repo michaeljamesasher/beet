@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>jQuery UI Slider - Default functionality</title>
+  <link rel="stylesheet" href="http://code.jquery.com/ui/1.11.0/themes/smoothness/jquery-ui.css">
+  <script src="http://code.jquery.com/jquery-1.10.2.js"></script>
+  <script src="http://code.jquery.com/ui/1.11.0/jquery-ui.js"></script>
+  <script src="/third/jquery.ui.touchpunch.js"></script>
+  <!-- <link rel="stylesheet" href="/resources/demos/style.css"> -->
+  <style type="text/css">
+  </style>
+  <script>
+   var sliderVal = 25;
+   function main(){
+        sliderVal =  $("#slider").slider("value");
+        $('#value').html(sliderVal)
+        return sliderVal;
+    }
+
+  $(function() {
+    $( "#slider" ).slider({
+        value: sliderVal,
+        slide: main,
+        change: main,
+    });
+  });
+  </script>
+</head>
+<body>
+<div id='value'>25</div>
+<div id="slider"></div>
+ 
+ 
+</body>
+</html>
