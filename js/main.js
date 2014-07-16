@@ -47,7 +47,6 @@ var blockBox = d3.select("#graphBox").append('div').attr('id','blockBox');
 var $blockBox = $(blockBox[0]);
 
 
-
 function zoomed() {
   container.attr("transform", "translate(" + d3.event.translate + ")")
    // TODO

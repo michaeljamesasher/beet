@@ -1,15 +1,8 @@
-/*
-Basic idea is to have each block an ordinary web page 
-so we can use the wealth of javascript libraries out there 
-and each block can be debugged independently.
-The only strict format is that each block have somewhere a js function
-named 'main' which takes the desired inputs and returns the output.
-'main' will be called each time the inputs are changed.
-To include interaction, simply include listeners which call main when
-a user does something. 
-
-*/
-
+// thanks http://www.mattsnider.com/parsing-javascript-function-argument-names/
+function getParamNames(fn) {
+    var funStr = fn.toString();
+    return funStr.slice(funStr.indexOf('(') + 1, funStr.indexOf(')')).match(/([^\s,]+)/g);
+}
 
 var SVGBlockView = Backbone.View.extend({
   initialize: function(){
@@ -57,7 +50,8 @@ var BlockView = Backbone.View.extend({
   },
 
   // template : _.template("<iframe scrolling='no' src='<%= main %>'></iframe>"),
-  template : _.template("<iframe scrolling='no' ></iframe>"),
+  // template : _.template("<iframe scrolling='no' ></iframe>"),
+  template : _.template("<iframe ></iframe>"),
 
   move: function(){
     this.$el.offset({
@@ -66,8 +60,12 @@ var BlockView = Backbone.View.extend({
     });
   },
 
+
+        // TODO 1. call main when inputs change
+
   render: function(){
-  
+      var model = this.model;
+
       this.$el.addClass('block').html(this.template(this.model.attributes)).appendTo($blockBox)
       this.$el.height(80);
       this.$el.width(100);
@@ -75,17 +73,71 @@ var BlockView = Backbone.View.extend({
       // TODO http://jsfiddle.net/Th75t/7/
       // this.$el.resizable();
     
-      var inner = this.$el.find('iframe')[0].contentWindow ;
+      var inner = this.$el.find('iframe')[0].contentWindow;
+
+      var $html = this.$el.find('iframe').contents().find('html');
 
       // rather than setting src=this.model.get('main'), to avoid cross origin restriction
       $.get( this.model.get('main'), function( pageHtml ) {
+        
+              
+            
+        // add in wrapping script to let parent know when main is called in iframe
+        // 2. update output when main is called
+        pageHtml = pageHtml.replace(/<\s*\/\s*script\s*>/g,'</script>')
+        var position = pageHtml.lastIndexOf("<\/script");
+        var wrapMain = _.template($('#wrapMain').html())({
+                                                        id: model.cid,
+                                                        open: '<script>',
+                                                        close: '<\/script>',
+                                                        });
+        var newHtml = [pageHtml.slice(0, position), wrapMain , pageHtml.slice(position)].join('');
+        
         inner.document.open();
-        inner.document.writeln(pageHtml);
+        inner.document.writeln(newHtml);
         inner.document.close();
 
-        whenAvailable('main', inner, function(){ 
-          console.log(inner.main)
+
+        // inner.document.innerHTML = newHtml;
+
+        // junk iframe just to find how many arguments main has/had
+        var junkIframe = $('<iframe />').appendTo('#junkIframes');
+        var innerJunk = junkIframe[0].contentWindow;
+        innerJunk.document.open();
+        innerJunk.document.writeln(pageHtml);
+        innerJunk.document.close();
+
+
+
+        whenAvailable('main', innerJunk, function(){
+
+          model.set('inputs', getParamNames(innerJunk.main) ); 
+          // inner.document.innerHTML = newHtml;
+          // $html.html(newHtml);
+
+          // thanks to http://ntt.cc/2008/02/10/4-ways-to-dynamically-load-external-javascriptwith-source.html
+          // var oHead = inner.document.getElementsByTagName('body').item(0);
+          // // TODO can't find body element 
+          // // TODDO can't find main function
+          // var oScript = inner.document.createElement( "script" );
+          // oScript.language = "javascript";
+          // oScript.type = "text/javascript";
+          // // oScript.id = sId;
+          // // oScript.defer = true;
+          // // oScript.text = 'main = function(){ var model = parent.blocks.get(' + model.id + ');'
+          // //           +'var output = main(arguments);'
+          // //           +'model.set("output",output);'
+          // //           +'console.log(parent.blocks); return output; }';
+          // oScript.text = _.template($('#wrapMain').html())({
+          //                                             id: model.cid,
+          //                                             open: '',
+          //                                             close: '',
+          //                                                 });
+
+          // oHead.appendChild( oScript );
+
         });
+
 
       });
 
@@ -110,17 +162,6 @@ function whenAvailable(name, context, callback) {
     setTimeout(callUntil, interval);
 }
 
-function plot(blocks){
-    dot = container
-      .selectAll("g")
-      .data(blocks.models)
-      .enter().append("g")
-      .each(function(d,i){
-        new SVGBlockView({ model: d, el: this});
-        new BlockView({ model: d});
-      });
-}
-
 var BlockModel = Backbone.Model.extend();
 
 var BlockCollection = Backbone.Collection.extend({ 
@@ -129,11 +170,30 @@ var BlockCollection = Backbone.Collection.extend({
 
 var blocks = new BlockCollection();
 
-blocks.fetch({
-             url:'/graph/data/init.json', 
-             success: function(collection){ plot(collection); } ,
-             error: function(collection, response, options){ console.log("error loading graph"); },
-            });
+
+
+// function addBlock(data){
+//   // var block = blocks.add(data).models[0];
+
+//   var block = new BlockModel(data);
+//   var el = container.append('g')[0][0];
+//   new SVGBlockView({ model: block, el: el});
+//   // new BlockView({ model: block});
+
+// }
+
+function plot(blocks){
+    dot = container
+      .selectAll("g")
+      .data(blocks.models)
+      .enter().append("g")
+      .each(function(d,i){
+        // console.log("plot", d, this)
+        new SVGBlockView({ model: d, el: this});
+        new BlockView({ model: d});
+      });
+}
+
 
 PanZoom = Backbone.Model.extend({
   defaults: {
@@ -142,4 +202,18 @@ PanZoom = Backbone.Model.extend({
   }
 });
 
-panZoom = new PanZoom;
+var panZoom = new PanZoom;
+
+$(document).ready(function(){
+// setTimeout(function(){
+
+  blocks.fetch({
+             url:'/graph/data/init.json', 
+             success: function(collection){ plot(collection); } ,
+             error: function(collection, response, options){ console.log("error loading graph"); },
+            });
+  // addBlock({"id": "number4", "x": 200, "y":200, "main": "/graph/pages/jquery-ui-slider.html"});
+  // addBlock({"id": "number1", "x": 280, "y":100, "main": "/graph/pages/jquery-ui-slider.html"});
+  // addBlock({"id": "number3", "x": 100, "y":280, "main": "/graph/pages/js.html"});
+})
+// },3000);
