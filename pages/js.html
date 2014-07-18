@@ -15,13 +15,17 @@
         </style>
     </head>
     <body>
-        <p> Sum the inputs </p>
+        <p> Sum:
+        <span id='sum'></span>
+        </p>
         <script src="/third/underscore.js"></script>
         <script type="text/javascript">
  
-			function main(numbers, multiple){
-				var sum = _.reduce(numbers, function(memo, num){ return memo + num; }, 0);
-				return multiple*sum;
+			function main(a, b){
+				// var sum = _.reduce(numbers, function(memo, num){ return memo + num; }, 0);
+                var sum = a+b;
+                document.getElementById('sum').innerHTML=String(sum);
+				return sum;
 			}
         </script>
 

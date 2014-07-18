@@ -5,23 +5,75 @@
 function getParamNames(fn) {
     var funStr = fn.toString();
     return funStr.slice(funStr.indexOf('(') + 1, funStr.indexOf(')')).match(/([^\s,]+)/g);
-    // return args.map(function(arg){ return {} });
 }
 
 //thanks to http://stackoverflow.com/questions/8618464/how-to-wait-for-another-js-to-load-to-proceed-operation
 // _.defer didn't always work
 function whenAvailable(name, context, callback) {
-    var interval = 0; // ms
+    var dfd = new jQuery.Deferred();
+    var interval = 100; // ms
     function callUntil(){
       if (context[name]) {
             callback();
+            dfd.resolve();
             // callback(window[name]);
         } else {
             setTimeout(callUntil, interval);
         }
     }
     setTimeout(callUntil, interval);
+    return dfd.promise();
 }
+
+// sort _id   
+function sort_ids(models){
+  _.each(models,function(model){
+    var links = model.get('links') || [];
+    for (var i = 0; i < links.length; i++) {
+      _.each(models,function(otherModel){
+        if (links[i].id == otherModel.get('_id')){
+          links[i].id = otherModel.cid;
+        }
+      });
+    };
+    model.set('links',links); // TODO linkmodel with view
+  });
+}
+
+
+// initialize models and views
+//=======================================
+// _id, inputs, output, links, x, y, main, inputValues 
+var BlockModel = Backbone.Model.extend({
+  initialize: function(){
+    this.on('change:output', this.followLinks, this);
+    this.set('inputValues', new Backbone.Model());
+  },
+  followLinks: function(){
+    var output = this.get('output');
+    var links = this.get('links');
+    _.each(links,function(link){
+      var inputValues = blocks.get(link.id).get('inputValues');
+      inputValues.set(link.input,output);
+    });
+  },
+  // format for saving
+  toJSON: function() {
+    var json = Backbone.Model.prototype.toJSON.apply(this, arguments);
+    json._id = this.cid;
+    return json;
+  },
+  // inputPosition: function(input){
+  //   var inputs = this.get('inputs');
+  //   return 32 + 30*_.indexOf(inputs,input);
+  // }
+});
+
+var BlockCollection = Backbone.Collection.extend({ 
+  model: BlockModel,
+}); 
+
+
 
 // underlying SVG for block
 //=======================================
@@ -29,42 +81,13 @@ function whenAvailable(name, context, callback) {
 var SVGBlockView = Backbone.View.extend({
   initialize: function(){
     this.model.SVGView = this;
-    this.model.on('change', this.render, this);   // TODO only necessary for inputs   
+    this.model.on('change', this.render, this);   // TODO only necessary for inputs  
+    // this.model.on('change', this.drawLinks, this); 
     this.model.on('remove', this.remove, this);      
-    this.render();
+    // this.render();
   },
   events: {
     'click .remove' : function(){ this.destroy(); },
-  },
-  drawLinks: function(){
-      var model = this.model;
-      var links = model.get('links') || [];
-      // console.log('links', links)
-
-      container.selectAll('path.link')
-          .data(links).enter()
-          .append('path').attr('class','link')
-          .attr('d', function(d){
-            // TODO don't hardcode path? - have BlockModel.inputPosition()
-            var blockTo = blocks.get(d.id);
-            junk =blockTo;
-            console.log(blockTo.get('inputs'),d.input);
-            var yTo = blockTo.get('y') + 30 +32*_.indexOf(blockTo.get('inputs'),d.input);
-            var path = "M" + (model.get('x')+100) +"," + (model.get('y')+32) 
-              + "L" + blockTo.get('x') +"," + yTo;
-              console.log(path,d.id,model.cid);
-              return path;
-          });
-  
-            // .attr("transform", function(d,i) { 
-            //   return 'translate(0,' + (32 + 30*i) + ')'; 
-            // })
-
-    // link.attr("d", function(d) {
-    //   return "M" + d[0].x + "," + d[0].y
-    //       + "S" + d[1].x + "," + d[1].y
-    //       + " " + d[2].x + "," + d[2].y;
-    // });
   },
   render : function(){
     var model = this.model;
@@ -159,10 +182,12 @@ var SVGBlockView = Backbone.View.extend({
 
 var BlockView = Backbone.View.extend({
   initialize: function(){
+    this.model.view = this;
+    this.d3Links = null;
     this.model.on('change', this.move, this);    
     this.model.on('remove', this.remove, this);
     panZoom.on('change', this.move, this);     
-    this.render();
+    // this.render();
   },
 
   // template : _.template("<iframe scrolling='no' src='<%= main %>'></iframe>"),
@@ -175,18 +200,14 @@ var BlockView = Backbone.View.extend({
     });
     this.$el.height(80*panZoom.get('zoom'));
     this.$el.width(100*panZoom.get('zoom'));
+
   },
-
         // TODO 1. call main when inputs change
-
   render: function(){
       var model = this.model;
 
       this.$el.addClass('block').html(this.template(this.model.attributes)).appendTo($blockBox)
       this.move(); // TODO render->initialize, move->render?
-      // this.$el.height(80);
-      // this.$el.width(100);
-      // this.$el.offset({top: this.model.get('y')+20, left: this.model.get('x')});
       // TODO http://jsfiddle.net/Th75t/7/
       // this.$el.resizable();
 
@@ -194,10 +215,19 @@ var BlockView = Backbone.View.extend({
 
       var $html = this.$el.find('iframe').contents().find('html');
 
+      // junk iframe just to find how many arguments main has/had
+      var junkIframe = $('<iframe />').appendTo('#junkIframes');
+      var innerJunk = junkIframe[0].contentWindow;
+      // promise will only resolve when below $.get completes and main is in context innerJunk
+      this.promise = whenAvailable('main', innerJunk, function(){
+          model.set('inputs', getParamNames(innerJunk.main) ); 
+          junkIframe.remove();
+      });
+
+
       // get iframe
       //      rather than setting src=this.model.get('main'), to avoid cross origin restriction
-      $.get( this.model.get('main'), function( pageHtml ) {
-        
+      $.get( this.model.get('main'), function( pageHtml ) {   
             
         // append script to wrap main in iframe as to let parent know when main is called 
         // 2. update output when main is called
@@ -214,57 +244,16 @@ var BlockView = Backbone.View.extend({
         inner.document.writeln(newHtml);
         inner.document.close();
 
-        // junk iframe just to find how many arguments main has/had
-        var junkIframe = $('<iframe />').appendTo('#junkIframes');
-        var innerJunk = junkIframe[0].contentWindow;
         innerJunk.document.open();
         innerJunk.document.writeln(pageHtml);
         innerJunk.document.close();
-
-        whenAvailable('main', innerJunk, function(){
-          model.set('inputs', getParamNames(innerJunk.main) ); 
-          junkIframe.remove();
-        });
-
-
+      
       });
 
       return this;
   } 
 });
 
-// initialize models and views
-//=======================================
-// _id, inputs, inputValuse, output, links, x, y, main
-var BlockModel = Backbone.Model.extend({
-  toJSON: function() {
-    var json = Backbone.Model.prototype.toJSON.apply(this, arguments);
-    json._id = this.cid;
-    return json;
-  },
-  // inputPosition: function(input){
-  //   var inputs = this.get('inputs');
-  //   console.log("dogg",inputs,input,this.cid)
-  //   return 32 + 30*_.indexOf(inputs,input);
-  // }
-});
-
-var BlockCollection = Backbone.Collection.extend({ 
-  model: BlockModel,
-}); 
-
-var blocks = new BlockCollection();
-
-function addBlock(block){
-    container
-      .append("g")
-      .data([block])
-      .each(function(d,i){
-        // console.log("add", d, this)
-        new SVGBlockView({ model: d, el: this});
-        new BlockView({ model: d});
-      });
-}
 
 PanZoom = Backbone.Model.extend({
   defaults: {
@@ -273,44 +262,112 @@ PanZoom = Backbone.Model.extend({
     "zoom": 1,
   }
 });
-
 var panZoom = new PanZoom;
 
-$(document).ready(function(){
+var blocks = new BlockCollection();
+
+function addBlock(block){ // apparently shouldn't go in model.initialize http://stackoverflow.com/questions/15707444/do-you-initialize-your-backbone-views-from-within-a-model-or-elsewhere
+    var d3el = container
+      .append("g")
+      .data([block])
+      // .each(function(d,i){
+      //   new SVGBlockView({ model: d, el: this});
+      //   new BlockView({ model: d});
+      // });
+
+    new SVGBlockView({ model: block, el: d3el[0][0] }).render();
+    var view = new BlockView({ model: block}).render();
+    return view;
+}
+
+
+var LinkView = Backbone.View.extend({
+  initialize: function(){
+    var blockFrom = this.model.get('blockFrom');
+    var blockTo = this.model.get('blockTo');
+    blockFrom.on('change',this.render,this);
+    blockTo.on('change',this.render,this);
+    blockTo.on('remove',this.destroy,this);
+    blockFrom.on('remove',this.destroy,this);
+    
+    this.d3Link = container
+      .append('path')
+      .attr('class','link');
+    this.render();
+
+  },
+  destroy: function(){
+    this.d3Link.remove();
+    this.remove();
+  },
+  render: function(){
+    // console.log("lame",blockTo,blockFrom,inputTo) //TODO stop calling when undefined
+    var blockFrom = this.model.get('blockFrom');
+    var blockTo = this.model.get('blockTo');
+    var inputTo = this.model.get('inputTo');
+
+    this.d3Link 
+    .attr('d', function(d){
+      // TODO don't hardcode path? - have BlockModel.inputPosition()
+      var yTo = blockTo.get('y') + 30 +32*_.indexOf(blockTo.get('inputs'),inputTo);
+      var path = "M" + (blockFrom.get('x')+100) +"," + (blockFrom.get('y')+32) 
+        + "L" + blockTo.get('x') +"," + yTo;
+      return path;
+    });
+
+  }
+});
+
+ 
+            // .attr("transform", function(d,i) { 
+            //   return 'translate(0,' + (32 + 30*i) + ')'; 
+            // })
+
+    // link.attr("d", function(d) {
+    //   return "M" + d[0].x + "," + d[0].y
+    //       + "S" + d[1].x + "," + d[1].y
+    //       + " " + d[2].x + "," + d[2].y;
+    // });
+
 
   blocks.fetch({
              url:'/graph/data/init.json', 
              success: function(collection){ 
 
-              _.each(collection.models, addBlock); 
-              
-              // sort _id   
-              _.each(collection.models,function(model){
-                var links = model.get('links') || [];
-                for (var i = 0; i < links.length; i++) {
-                  _.each(collection.models,function(otherModel){
-                    if (links[i].id == otherModel.get('_id')){
-                      links[i].id = otherModel.cid;
-                    }
-                  });
-                };
-                model.set('links',links); // TODO linkmodel with view
-              })
+              var promises = [];
+              _.each(collection.models, function(block){
+                var view = addBlock(block);
+                promises.push(view.promise);
+              }); 
 
-              //TODO make sure inputs are set
-              _.each(collection.models, function(block){ block.SVGView.drawLinks(); });
+              // when all the blocks are loaded
+              $.when.apply($,promises).done(function(a,b,c){
+                  sort_ids(collection.models);
+                  _.each(collection.models, function(block){ 
+                    // console.log('links are here', block.get('links')[0]);
+
+                      var links = block.get('links') || [];
+                      _.each( links, function(link){
+                        var linkModel = new Backbone.Model({
+                          blockFrom: block,
+                          blockTo: blocks.get(link.id),
+                          inputTo: link.input
+                        }); 
+                        new LinkView({model: linkModel})
+                      });
+
+                    // block.view.renderLinks(); 
+                  });
+              });
 
             },
              error: function(collection, response, options){ console.log("error loading graph"); },
             });
 
-  //TODO when links.fetch use _id
-
-
   setTimeout(function(){
 
 // TODO put this all (including adBlock in the initialize)
-    var block = new BlockModel({"x": 100, "y":100, "main": "/graph/pages/jquery-ui-slider.html"});
+    var block = new BlockModel({"x": 280, "y":100, "main": "/beet/pages/leaflet.html"});
     blocks.add(block);
     addBlock(block);
 
@@ -318,6 +375,3 @@ $(document).ready(function(){
 
   // addBlock({ "x": 100, "y":280, "main": "/graph/pages/jquery-ui-slider.html"});
   // addBlock({ "x": 280, "y":280, "main": "/graph/pages/js.html"});
-
-
-})

@@ -48,10 +48,11 @@
         <%= close %>
         <%= open %>
             // thanks to http://underscorejs.org
-            var ArrayProto = Array.prototype;
-            var slice = ArrayProto.slice;
-            partial = function(func) {
-              var boundArgs = slice.call(arguments, 1);
+            //TODO namespace
+            var beet = {};
+            beet.slice = Array.prototype.slice;
+            beet.partial = function(func) {
+              var boundArgs = beet.slice.call(arguments, 1);
               return function() {
                 var position = 0;
                 var args = boundArgs.slice();
@@ -61,19 +62,19 @@
                 return func.apply(this, args);
               };
             };
-            wrap = function(func, wrapper) {
-              return partial(wrapper, func);
+            beet.wrap = function(func, wrapper) {
+              return beet.partial(wrapper, func);
             };
-            main = wrap(main, function(func) {
+            main = beet.wrap(main, function(func) {
               var model = parent.blocks.get('<%= id %>');
               var inputs = model.get('inputs') || [];
-              var inputValues = model.get('inputValues');
-              var output = func(inputs.map(function(input){ return inputValues[input] }));
-              // var output = func(arguments);
-              console.log("<%= id %>", output, inputs.map(function(input){ return inputValues[input] }))
+              var inputValues = model.get('inputValues') || [];
+              var output = func.apply(this,inputs.map(function(input){ return inputValues.get(input) }));
+              // console.log("<%= id %>", output, inputs.map(function(input){ return inputValues.get(input) }))
               model.set("output", output);
               return output;
             });
+            parent.blocks.get('<%= id %>').get('inputValues').on('change',main);
 
 
 

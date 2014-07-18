@@ -1,4 +1,5 @@
 [
-{"_id":"c3", "x": 100, "y":280, "main": "/graph/pages/jquery-ui-slider.html", "links":[{"id":"c2","input":"multiple"}]},
+{"_id":"c3", "x": 100, "y":280, "main": "/graph/pages/jquery-ui-slider.html", "links":[{"id":"c2","input":"b"}]},
+{"_id":"c4", "x": 100, "y":100, "main": "/graph/pages/jquery-ui-slider.html", "links":[{"id":"c2","input":"a"}]},
 {"_id":"c2", "x": 280, "y":280, "main": "/graph/pages/js.html"}
 ]

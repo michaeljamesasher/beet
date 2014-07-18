@@ -1,5 +1,4 @@
 /*
-
 thanks to
 http://bl.ocks.org/mbostock/6123708
 
@@ -24,9 +23,7 @@ var margin = {top: 0, right: 0, bottom: 0, left: 0},
 
 var zoom = d3.behavior.zoom()
     .scaleExtent([0.5, 5])
-    // .on("zoomstart", zoomstarted);
     .on("zoom", zoomed);
-    // .on("zoomstart", zoomended);
 
 var drag = d3.behavior.drag()
     .origin(function(d) { return {x: d.get('x'),y: d.get('y')} })
@@ -53,11 +50,8 @@ var container = svg.append("g")
 var blockBox = d3.select("#graphBox").append('div').attr('id','blockBox');
 var $blockBox = $(blockBox[0]);
 
-
 function zoomed() {
-  // container.attr("transform", "translate(" + d3.event.translate + ")")
   container.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")")
-   // TODO
   panZoom.set('zoom',d3.event.scale);
   panZoom.set('x',d3.event.translate[0]);
   panZoom.set('y',d3.event.translate[1]);
@@ -75,7 +69,7 @@ function draggedBlock(d) {
   d.set('y', d3.event.y);
 }
 }
-//TODO mouseup in block doesn't trigger dragend
+//TODO events (mouseup,drag) in iframe block don't trigger dragend
 function dragendedBlock(d) {
   d3.select(this).classed("dragging", false);
 }
