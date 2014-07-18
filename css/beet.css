@@ -1,0 +1,71 @@
+@font-face {
+  font-family: 'beet';
+  src: url('../fonts/beet.eot?76426021');
+  src: url('../fonts/beet.eot?76426021#iefix') format('embedded-opentype'),
+       url('../fonts/beet.woff?76426021') format('woff'),
+       url('../fonts/beet.ttf?76426021') format('truetype'),
+       url('../fonts/beet.svg?76426021#beet') format('svg');
+  font-weight: normal;
+  font-style: normal;
+}
+/* Chrome hack: SVG is rendered more smooth in Windozze. 100% magic, uncomment if you need it. */
+/* Note, that will break hinting! In other OS-es font will be not as sharp as it could be */
+/*
+@media screen and (-webkit-min-device-pixel-ratio:0) {
+  @font-face {
+    font-family: 'beet';
+    src: url('../fonts/beet.svg?76426021#beet') format('svg');
+  }
+}
+*/
+ 
+ [class^="icon-"]:before, [class*=" icon-"]:before {
+  font-family: "beet";
+  font-style: normal;
+  font-weight: normal;
+  speak: none;
+ 
+  display: inline-block;
+  text-decoration: inherit;
+  width: 1em;
+  margin-right: .2em;
+  text-align: center;
+  /* opacity: .8; */
+ 
+  /* For safety - reset parent styles, that can break glyph codes*/
+  font-variant: normal;
+  text-transform: none;
+     
+  /* fix buttons height, for twitter bootstrap */
+  line-height: 1em;
+ 
+  /* Animation center compensation - margins should be symmetric */
+  /* remove if not needed */
+  margin-left: .2em;
+ 
+  /* you can be more comfortable with increased icons size */
+  /* font-size: 120%; */
+ 
+  /* Uncomment for 3D effect */
+  /* text-shadow: 1px 1px 1px rgba(127, 127, 127, 0.3); */
+}
+ 
+.icon-menu:before { content: '\e800'; } /* '' */
+.icon-search:before { content: '\e801'; } /* '' */
+.icon-twitter:before { content: '\e802'; } /* '' */
+.icon-pinterest-circled:before { content: '\e803'; } /* '' */
+.icon-male:before { content: '\e804'; } /* '' */
+.icon-instagram:before { content: '\e805'; } /* '' */
+.icon-left-open:before { content: '\e806'; } /* '' */
+.icon-right-open:before { content: '\e807'; } /* '' */
+.icon-cancel:before { content: '\e808'; } /* '' */
+.icon-logofont:before { content: '\e809'; } /* '' */
+.icon-facebook:before { content: '\e80a'; } /* '' */
+.icon-female:before { content: '\e80b'; } /* '' */
+.icon-basket:before { content: '\e80c'; } /* '' */
+.icon-cancel-circled2:before { content: '\e80d'; } /* '' */
+.icon-ok-circled2:before { content: '\e80e'; } /* '' */
+.icon-download-cloud:before { content: '\e80f'; } /* '' */
+.icon-upload-cloud:before { content: '\e810'; } /* '' */
+.icon-help:before { content: '\e811'; } /* '' */
+.icon-help-circled:before { content: '\e812'; } /* '' */

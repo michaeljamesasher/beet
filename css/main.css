@@ -40,8 +40,8 @@ html, body{
 
 .dot rect {
   fill: lightsteelblue;
-  stroke: steelblue;
-  stroke-width: 1.5px;
+  stroke: lightsteelblue;
+  stroke-width: 0.5px;
 }
 
 .dot .dragging rect {
@@ -52,3 +52,25 @@ html, body{
 #junkIframes{
   display: none;
 }
+
+.link {
+  fill: none;
+  stroke: darkred;
+  /*stroke: #673f45;*/
+  stroke-width: 2.5px;
+}
+
+.input circle{
+  fill: white;
+}
+
+.input rect{
+  fill: black;
+}
+
+/*.output circle{
+  shape-rendering: geometricPrecision;
+  stroke: black;
+  stroke-width:0.1px;
+}
+*/
