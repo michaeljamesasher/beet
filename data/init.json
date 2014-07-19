@@ -1,5 +1,6 @@
 [
-{"_id":"c3", "x": 100, "y":280, "main": "/graph/pages/jquery-ui-slider.html", "links":[{"id":"c2","input":"b"}]},
-{"_id":"c4", "x": 100, "y":100, "main": "/graph/pages/jquery-ui-slider.html", "links":[{"id":"c2","input":"a"}]},
-{"_id":"c2", "x": 280, "y":280, "main": "/graph/pages/js.html"}
+{"_id":"c3", "x": 100, "y":280, "main": "/graph/pages/jquery-ui-slider.html", "links":[{"id":"c2","input":"b"},{"id":"c5","input":"lng"}]},
+{"_id":"c4", "x": 100, "y":100, "main": "/graph/pages/jquery-ui-slider.html", "links":[{"id":"c2","input":"a"},{"id":"c5","input":"lat"}]},
+{"_id":"c2", "x": 280, "y":100, "main": "/graph/pages/js.html"},
+{"_id":"c5", "x": 280, "y":280, "main": "/graph/pages/leaflet.html"}
 ]

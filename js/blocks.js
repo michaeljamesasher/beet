@@ -311,7 +311,8 @@ var LinkView = Backbone.View.extend({
       // TODO don't hardcode path? - have BlockModel.inputPosition()
       var yTo = blockTo.get('y') + 30 +32*_.indexOf(blockTo.get('inputs'),inputTo);
       var path = "M" + (blockFrom.get('x')+100) +"," + (blockFrom.get('y')+32) 
-        + "L" + blockTo.get('x') +"," + yTo;
+        + "Q" + ((blockTo.get('x')+blockFrom.get('x')+100)/2) +"," + yTo+',' 
+        + blockTo.get('x') +"," + yTo;
       return path;
     });
 
@@ -365,9 +366,7 @@ var LinkView = Backbone.View.extend({
             });
 
   setTimeout(function(){
-
-// TODO put this all (including adBlock in the initialize)
-    var block = new BlockModel({"x": 280, "y":100, "main": "/beet/pages/leaflet.html"});
+    var block = new BlockModel({"x": 280, "y":400, "main": "/graph/pages/handsontable.html"});
     blocks.add(block);
     addBlock(block);
 

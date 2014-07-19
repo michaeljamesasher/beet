@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <title>BEET - Leaflet </title>
+        <meta name="description" content="Leaflet map">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link rel="stylesheet" href="/third/normalize.min.css">
+        <link rel="stylesheet" href="/third/leaflet.css">
+        <style>
+            html,body,#mapElement{
+                height: 100%;
+                width: 100%;
+            }
+            .leaflet-control-zoom{
+                display: none;
+            }
+        </style>
+    </head>
+    <body>
+        <!--[if lt IE 7]>
+            <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+        <![endif]-->
+
+        <div id="mapElement" style="height: 100%;"></div>
+
+        <script src="/third/leaflet.js"></script>
+        <script>
+            var init_loc = {lat: -32.882743, lng: 147.330234};
+            map = L.map('mapElement').setView([init_loc.lat, init_loc.lng], 4);
+
+            // baseLayer = L.tileLayer('http://{s}.www.toolserver.org/tiles/bw-mapnik/{z}/{x}/{y}.png', {
+            //     attribution: 'Map data &copy; 2011 OpenStreetMap contributors, Imagery &copy; toolserver.org',
+            // }).addTo(map);
+
+            var OpenStreetMap_Mapnik = L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                // attribution: '&copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>'
+            }).addTo(map);
+
+            function main(lat, lng){
+                map.setView([lat,lng],4);                
+            }
+
+
+
+        </script>
+
+    </body>
+</html>

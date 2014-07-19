@@ -66,13 +66,18 @@
               return beet.partial(wrapper, func);
             };
             main = beet.wrap(main, function(func) {
-              var model = parent.blocks.get('<%= id %>');
-              var inputs = model.get('inputs') || [];
-              var inputValues = model.get('inputValues') || [];
-              var output = func.apply(this,inputs.map(function(input){ return inputValues.get(input) }));
-              // console.log("<%= id %>", output, inputs.map(function(input){ return inputValues.get(input) }))
-              model.set("output", output);
-              return output;
+              try{
+                  var model = parent.blocks.get('<%= id %>');
+                  var inputs = model.get('inputs') || [];
+                  var inputValues = model.get('inputValues') || [];
+                  var output = func.apply(this,inputs.map(function(input){ return inputValues.get(input) }));
+                  // console.log("<%= id %>", output, inputs.map(function(input){ return inputValues.get(input) }))
+                  model.set("output", output);
+                  return output;
+              }
+              catch(err){
+                console.log(err + 'in block <%= id %>');
+              }
             });
             parent.blocks.get('<%= id %>').get('inputValues').on('change',main);
 

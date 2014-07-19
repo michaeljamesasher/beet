@@ -76,3 +76,7 @@ html, body{
   stroke-width:0.1px;
 }
 */
+
+.invisible{
+  pointer-events:none;
+}

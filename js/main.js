@@ -60,6 +60,7 @@ function zoomed() {
 function dragstartedBlock(d) {
   d3.event.sourceEvent.stopPropagation();
   d3.select(this).classed("dragging", true);
+  d3.selectAll('.block').classed('invisible',true);
 }
 
 function draggedBlock(d) {
@@ -71,5 +72,6 @@ function draggedBlock(d) {
 }
 //TODO events (mouseup,drag) in iframe block don't trigger dragend
 function dragendedBlock(d) {
+  d3.selectAll('.block').classed('invisible',false);
   d3.select(this).classed("dragging", false);
 }
