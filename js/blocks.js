@@ -48,7 +48,9 @@ var BlockModel = Backbone.Model.extend({
   initialize: function(){
     this.on('change:output', this.followLinks, this);
     this.set('inputValues', new Backbone.Model());
-    // this.$iframe = 
+    // this.iframeBox = $('<div class="block"><iframe ></iframe></div>').appendTo($blockBox);
+    // this.set('iframeBox', iframeBox);
+
   },
   followLinks: function(){
     var output = this.get('output');
@@ -180,15 +182,16 @@ var BlockView = Backbone.View.extend({
   initialize: function(){
     this.model.view = this;
     // this.d3Links = null;
-    this.model.on('change', this.move, this);    // TODO change to listenTO
+    // this.model.on('change', this.move, this);    // TODO change to listenTO
     this.model.on('remove', this.remove, this);
-    panZoom.on('change', this.move, this);     
+    this.listenTo(panZoom,'change', this.move)
+    this.listenTo(this.model,'change', this.move)
+    // panZoom.on('change', this.move, this);  
     // this.render();
   },
 
   // template : _.template("<iframe scrolling='no' src='<%= main %>'></iframe>"),
-  template : _.template("<iframe ></iframe>"),
-
+  // this.template(this.model.attributes)
   move: function(){
     this.$el.offset({
         top: panZoom.get('y')+(this.model.get('y')+20)*panZoom.get('zoom'),
@@ -200,8 +203,8 @@ var BlockView = Backbone.View.extend({
   },
   render: function(){
       var model = this.model;
-
-      this.$el.addClass('block').html(this.template(this.model.attributes)).appendTo($blockBox)
+      this.$el.addClass('block').html('<iframe ></iframe>').appendTo($blockBox)
+      // $('<div class="block"><iframe ></iframe></div>').appendTo($blockBox);
       this.move(); // TODO render->initialize, move->render?
       // TODO http://jsfiddle.net/Th75t/7/
       // this.$el.resizable();
@@ -271,7 +274,7 @@ function addBlock(block){ // apparently shouldn't go in model.initialize http://
       // });
 
     new SVGBlockView({ model: block, el: d3el[0][0] }).render();
-    var view = new BlockView({ model: block}).render();
+    var view = new BlockView({ model: block, $el: block.get('iframeBox')}).render();
     return view;
 }
 

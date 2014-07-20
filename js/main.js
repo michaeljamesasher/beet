@@ -52,16 +52,26 @@ var $blockBox = $(blockBox[0]);
 
 function zoomed() {
   container.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")")
-  panZoom.set('zoom',d3.event.scale);
+  panZoom.set('zoom',d3.event.scale); // TODO no longer needs to be a model
   panZoom.set('x',d3.event.translate[0]);
   panZoom.set('y',d3.event.translate[1]);
 }
 
 function dragstartedBlock(d) {
   d3.event.sourceEvent.stopPropagation();
+  d3.event.sourceEvent.preventDefault();
   d3.select(this).classed("dragging", true);
   d3.selectAll('.block').classed('invisible',true);
 }
+
+// function moveIframe(el, x, y){
+//     el.offset({
+//       top: panZoom.get('y')+(y+20)*panZoom.get('zoom'),
+//       left: panZoom.get('x')+(x)*panZoom.get('zoom')
+//     });
+//     el.height(80*panZoom.get('zoom'));
+//     el.width(100*panZoom.get('zoom'));
+// }
 
 function draggedBlock(d) {
   if(!isNaN(d3.event.x) && !isNaN(d3.event.y)){
