@@ -26,7 +26,7 @@ var zoom = d3.behavior.zoom()
     .on("zoom", zoomed);
 
 var drag = d3.behavior.drag()
-    .origin(function(d) { return {x: d.get('x'),y: d.get('y')} })
+    .origin(function(d) { return {x: d.get('x'),y: d.get('y')} }) //TODO d3.slect(this).attr('x')?
     .on("dragstart", dragstartedBlock)
     .on("drag", draggedBlock)
     .on("dragend", dragendedBlock);
@@ -65,13 +65,56 @@ function dragstartedBlock(d) {
 
 function draggedBlock(d) {
   if(!isNaN(d3.event.x) && !isNaN(d3.event.y)){
-  d3.select(this).attr("transform", function(d) { return 'translate(' + d3.event.x +',' + d3.event.y + ')'; })
-  d.set('x', d3.event.x);
-  d.set('y', d3.event.y);
+    d3.select(this).attr("transform", function(d) { return 'translate(' + d3.event.x +',' + d3.event.y + ')'; })
+    d.set('x', d3.event.x);
+    d.set('y', d3.event.y);
+    // TODO move 'shadow' svg then move actual element on dragend
+  }
 }
-}
-//TODO events (mouseup,drag) in iframe block don't trigger dragend
+
 function dragendedBlock(d) {
   d3.selectAll('.block').classed('invisible',false);
   d3.select(this).classed("dragging", false);
+}
+
+function drawLinkPath(x,y,x2,y2){
+  return "M" + x +"," + y
+    + "S" + ((x+x2)/2) +"," + y2+',' 
+    + x2 +"," + y2;
+}
+
+function addLink(from, to, input){
+   var linkModel = new Backbone.Model({
+    blockFrom: from,
+    blockTo: to ,
+    inputTo: input
+  }); 
+  new LinkView({model: linkModel})
+  //TODO add links to blockFrom collection - deal with toJSON ramifications
+}
+
+var linkEnd = null; 
+var linkDrawer = d3.svg.diagonal();
+var linkPath = container.append('path').attr('class','link temp');  
+var dragLink = d3.behavior.drag()
+    .origin(function(d) { return {x: d.x,y: d.y} })
+    .on("dragstart", dragstartedLink)
+    .on("drag", draggedLink)
+    .on("dragend", dragendedLink);
+
+function dragstartedLink(d){
+  d3.event.sourceEvent.stopPropagation();
+  d3.event.sourceEvent.preventDefault();
+}
+
+function draggedLink(d){
+  linkPath.attr('d',drawLinkPath(d.x,d.y,
+                                d3.event.x, d3.event.y));
+}
+function dragendedLink(d){
+  if (_.isNull(linkEnd)) linkPath.attr('d','');
+  else {
+    linkPath.attr('d','');
+    addLink(d.model,linkEnd.model,linkEnd.input)
+  };
 }

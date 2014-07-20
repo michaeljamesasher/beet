@@ -19,6 +19,12 @@
   fill: #f00;
 }
 
+html,body{
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
 </style>
 <body>
 <script src="http://d3js.org/d3.v3.min.js"></script>
@@ -64,8 +70,8 @@ graph = {
 
 
 
-var width = 960,
-    height = 500;
+var width = document.getElementsByTagName('body')[0].getBoundingClientRect().width,
+    height = document.getElementsByTagName('body')[0].getBoundingClientRect().height;
 
 var force = d3.layout.force()
     .size([width, height])

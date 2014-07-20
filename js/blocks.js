@@ -48,6 +48,7 @@ var BlockModel = Backbone.Model.extend({
   initialize: function(){
     this.on('change:output', this.followLinks, this);
     this.set('inputValues', new Backbone.Model());
+    // this.$iframe = 
   },
   followLinks: function(){
     var output = this.get('output');
@@ -82,7 +83,6 @@ var SVGBlockView = Backbone.View.extend({
   initialize: function(){
     this.model.SVGView = this;
     this.model.on('change', this.render, this);   // TODO only necessary for inputs  
-    // this.model.on('change', this.drawLinks, this); 
     this.model.on('remove', this.remove, this);      
     // this.render();
   },
@@ -112,7 +112,7 @@ var SVGBlockView = Backbone.View.extend({
       .attr("transform", 'translate(90,10)')
       .text(function(d) { return '' })
       .attr('class','remove')
-      .attr('cursor','default');
+      .attr('cursor','default'); // TODO create undo button
       // .on('click', function(){ view.destroy(); });
     
 
@@ -128,17 +128,13 @@ var SVGBlockView = Backbone.View.extend({
             .attr("transform", function(d,i) { 
               return 'translate(0,' + (32 + 30*i) + ')'; 
             })
-            .on("mousedown", function(d){ d3.event.stopPropagation();  }) //TODO check
-            .on("dragstart", function(d){ })
-            // .on("drag", function(d){ 
-            //   container.append('path')
-            //     .attr("class", "link")
-            //     .attr("d", function(d){})
-            //     ;
-            //   })
-            // .on("dragend", function(d){ d3.event.stopPropagation(); })
-            .on('click', function(){ console.log('punk'); })
-            .attr('cursor','crosshair');
+            .attr('cursor','crosshair')
+            .on('mouseenter', function(d,i){
+              linkEnd={model:model,input: d, x: model.get('x'), y: model.get('y') +32 + 30*i};
+            })
+            .on('mouseleave',function(){
+              linkEnd=null; // TODO will reseting this get rid of model, allow it to be removed
+            });
 
       inputBoxes.append('rect')
         .attr("width", 24)
@@ -159,15 +155,15 @@ var SVGBlockView = Backbone.View.extend({
 
     d3el.append('g')
     .attr('class','output')
+    .datum({x:model.get('x')+100,y:model.get('y')+32, model:model})
+    // .datum({x:model.get('x')+100,y:model.get('y')+32})
     .attr("transform", function(d,i) { 
       return 'translate(100 , 32)'; 
     })
-    .on("mousedown", function(d){ d3.event.stopPropagation();  }) //TODO check
     .attr('cursor','crosshair')
-    .on("mousedown", function(d){ d3.event.stopPropagation();  })
+    .call(dragLink)
+    // .on("mousedown", function(d){ d3.event.stopPropagation();  })
     .append('circle').attr('r',10);
-
-
   },
 
   destroy : function(){
@@ -183,8 +179,8 @@ var SVGBlockView = Backbone.View.extend({
 var BlockView = Backbone.View.extend({
   initialize: function(){
     this.model.view = this;
-    this.d3Links = null;
-    this.model.on('change', this.move, this);    
+    // this.d3Links = null;
+    this.model.on('change', this.move, this);    // TODO change to listenTO
     this.model.on('remove', this.remove, this);
     panZoom.on('change', this.move, this);     
     // this.render();
@@ -202,7 +198,6 @@ var BlockView = Backbone.View.extend({
     this.$el.width(100*panZoom.get('zoom'));
 
   },
-        // TODO 1. call main when inputs change
   render: function(){
       var model = this.model;
 
@@ -226,7 +221,7 @@ var BlockView = Backbone.View.extend({
 
 
       // get iframe
-      //      rather than setting src=this.model.get('main'), to avoid cross origin restriction
+      // rather than setting src=this.model.get('main'), to avoid cross origin restriction
       $.get( this.model.get('main'), function( pageHtml ) {   
             
         // append script to wrap main in iframe as to let parent know when main is called 
@@ -291,7 +286,8 @@ var LinkView = Backbone.View.extend({
     blockFrom.on('remove',this.destroy,this);
     
     this.d3Link = container
-      .append('path')
+      // .append('path')
+      .insert('path',":first-child")
       .attr('class','link');
     this.render();
 
@@ -310,26 +306,13 @@ var LinkView = Backbone.View.extend({
     .attr('d', function(d){
       // TODO don't hardcode path? - have BlockModel.inputPosition()
       var yTo = blockTo.get('y') + 30 +32*_.indexOf(blockTo.get('inputs'),inputTo);
-      var path = "M" + (blockFrom.get('x')+100) +"," + (blockFrom.get('y')+32) 
-        + "Q" + ((blockTo.get('x')+blockFrom.get('x')+100)/2) +"," + yTo+',' 
-        + blockTo.get('x') +"," + yTo;
+      var path = drawLinkPath(blockFrom.get('x')+100, blockFrom.get('y')+32,
+                              blockTo.get('x'), yTo )
       return path;
     });
 
   }
 });
-
- 
-            // .attr("transform", function(d,i) { 
-            //   return 'translate(0,' + (32 + 30*i) + ')'; 
-            // })
-
-    // link.attr("d", function(d) {
-    //   return "M" + d[0].x + "," + d[0].y
-    //       + "S" + d[1].x + "," + d[1].y
-    //       + " " + d[2].x + "," + d[2].y;
-    // });
-
 
   blocks.fetch({
              url:'/graph/data/init.json', 
@@ -342,7 +325,7 @@ var LinkView = Backbone.View.extend({
               }); 
 
               // when all the blocks are loaded
-              $.when.apply($,promises).done(function(a,b,c){
+              $.when.apply($,promises).done(function(){
                   sort_ids(collection.models);
                   _.each(collection.models, function(block){ 
                     // console.log('links are here', block.get('links')[0]);
@@ -357,7 +340,6 @@ var LinkView = Backbone.View.extend({
                         new LinkView({model: linkModel})
                       });
 
-                    // block.view.renderLinks(); 
                   });
               });
 
@@ -374,3 +356,7 @@ var LinkView = Backbone.View.extend({
 
   // addBlock({ "x": 100, "y":280, "main": "/graph/pages/jquery-ui-slider.html"});
   // addBlock({ "x": 280, "y":280, "main": "/graph/pages/js.html"});
+
+
+//TODO d3.diagonal
+// use listenTo rather than model.on  // check ozkatz.github.io/avoiding-common-backbonejs-pitfalls.html
