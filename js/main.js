@@ -14,6 +14,9 @@ http://codepen.io/billdwhite/pen/lCAdi
 
 */
 
+
+
+
 // d3 SVG based panning and dragging
 //=======================================
 
@@ -64,15 +67,6 @@ function dragstartedBlock(d) {
   d3.selectAll('.block').classed('invisible',true);
 }
 
-// function moveIframe(el, x, y){
-//     el.offset({
-//       top: panZoom.get('y')+(y+20)*panZoom.get('zoom'),
-//       left: panZoom.get('x')+(x)*panZoom.get('zoom')
-//     });
-//     el.height(80*panZoom.get('zoom'));
-//     el.width(100*panZoom.get('zoom'));
-// }
-
 function draggedBlock(d) {
   if(!isNaN(d3.event.x) && !isNaN(d3.event.y)){
     d3.select(this).attr("transform", function(d) { return 'translate(' + d3.event.x +',' + d3.event.y + ')'; })
@@ -93,15 +87,15 @@ function drawLinkPath(x,y,x2,y2){
     + x2 +"," + y2;
 }
 
-function addLink(from, to, input){
-   var linkModel = new Backbone.Model({
-    blockFrom: from,
-    blockTo: to ,
-    inputTo: input
-  }); 
-  new LinkView({model: linkModel})
-  //TODO add links to blockFrom collection - deal with toJSON ramifications
-}
+// function addLink(from, to, input){
+//    var linkModel = new Backbone.Model({
+//     blockFrom: from,
+//     blockTo: to ,
+//     inputTo: input
+//   }); 
+//   new LinkView({model: linkModel})
+//   //TODO add links to blockFrom collection - deal with toJSON ramifications
+// }
 
 var linkEnd = null; 
 var linkDrawer = d3.svg.diagonal();
@@ -121,10 +115,14 @@ function draggedLink(d){
   linkPath.attr('d',drawLinkPath(d.x,d.y,
                                 d3.event.x, d3.event.y));
 }
+
 function dragendedLink(d){
-  if (_.isNull(linkEnd)) linkPath.attr('d','');
+  if (_.isNull(linkEnd)) linkPath.attr('d','M0,0'); //TODO stop d3 warning: Empty string passed to getElementById().
   else {
-    linkPath.attr('d','');
-    addLink(d.model,linkEnd.model,linkEnd.input)
+    linkPath.attr('d','M0,0');
+    var link = new Backbone.Model({toId:linkEnd.toId, input:linkEnd.input, fromId:d.model.cid});
+    d.model.get('links').add(link);
+    new LinkView({model:link});
+    // addLink(d.model,linkEnd.model,linkEnd.input)
   };
 }
