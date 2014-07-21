@@ -39,7 +39,6 @@ function sort_ids(models){
     };
     // model.set('savedLinks',savedLinks); // TODO linkmodel with view
     model.unset('savedLinks',{silent:true})
-    // console.log('saved',savedLinks)
     model.get('links').add(savedLinks)
     // model.set('links', new Backbone.Collection(links));
   });
@@ -102,7 +101,11 @@ var SVGBlockView = Backbone.View.extend({
     if (rect.empty()){
       d3el.append('rect')
         .attr("width", 100)
-        .attr("height", 100);
+        .attr("height", 100)
+        .on('click',function(){
+          // if selected
+          editorModel.set('blockId', model.cid);
+        });
     }
 
     d3el.selectAll('text').remove();
@@ -128,9 +131,9 @@ var SVGBlockView = Backbone.View.extend({
             .attr("transform", function(d,i) { 
               return 'translate(0,' + (32 + 30*i) + ')'; 
             })
-            .attr('cursor','crosshair')
+            // .attr('cursor','crosshair')
             .on('mouseenter', function(d,i){
-              linkEnd={toId:model.cid,input: d, x: model.get('x'), y: model.get('y') +32 + 30*i};
+              linkEnd={toId:model.cid,input: d};
             })
             .on('mouseleave',function(){
               linkEnd=null; // TODO will reseting this get rid of model, allow it to be removed
@@ -155,7 +158,7 @@ var SVGBlockView = Backbone.View.extend({
 
     d3el.append('g')
     .attr('class','output')
-    .datum({x:model.get('x')+100,y:model.get('y')+32, model:model})
+    .datum(model)
     // .datum({x:model.get('x')+100,y:model.get('y')+32})
     .attr("transform", function(d,i) { 
       return 'translate(100 , 32)'; 
@@ -215,6 +218,7 @@ var BlockView = Backbone.View.extend({
       // rather than setting src=this.model.get('main'), to avoid cross origin restriction
       $.get( this.model.get('main'), function( pageHtml ) {   
             
+        model.set('pageHtml', pageHtml);    
         // append script to wrap main in iframe as to let parent know when main is called 
         // 2. update output when main is called
         pageHtml = pageHtml.replace(/<\s*\/\s*script\s*>/g,'</script>')
@@ -239,8 +243,10 @@ var BlockView = Backbone.View.extend({
       return this;
   } 
 });
+
 var LinkView = Backbone.View.extend({
   initialize: function(){
+    this.model.view = this;
     // var blockTo = this.model.get('blockTo');
     var blockFrom = blocks.get(this.model.get('fromId'));
     var blockTo = blocks.get(this.model.get('toId'));
@@ -251,7 +257,11 @@ var LinkView = Backbone.View.extend({
     
     this.d3Link = container
       .insert('path',":first-child")
-      .attr('class','link');
+      .datum(this.model)
+      .attr('class','link')
+      .attr('cursor','crosshair')
+      .call(redragLink);
+
     this.render();
 
   },

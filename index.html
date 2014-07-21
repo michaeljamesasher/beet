@@ -23,6 +23,18 @@
         <![endif]-->
 
         <div id="graphBox"></div>
+        <div id="menuBox">
+
+<!--             <span id="position"></span>
+            <div id="dragbar"></div> -->
+            <div id="resize" class='menu'><i class='icon-left-open'></i><i class='icon-right-open'></i></div>
+            <div id='file-image' class='menu'><i class='icon-file-image'></i></div>
+            <div id='file-code' class='menu'><i class='icon-file-code'></i></div>
+
+
+            <div id='editor'></div>
+        </div>
+
         <div id="junkIframes"></div>
 
 
@@ -36,7 +48,13 @@
         <script src="/third/underscore.js"></script>
         <script src="/third/backbone.js"></script>
         <script src="/third/d3.min.js"></script>
-        
+    
+        <script src="/third/base64.js"></script>
+        <script src="/third/github.js"></script>
+
+        <script src="/third/ace-src-min-noconflict/ace.js"></script>
+        <script src="/third/ace-src-min-noconflict/ext-language_tools.js"></script>
+
         <!--
         
                 <script src="/third/jquery.panzoom.js"></script>
@@ -46,6 +64,7 @@
         <script src="/graph/js/views.js"></script>
         <script src="/graph/js/main.js"></script>
         <script src="/graph/js/blocks.js"></script>
+        <script src="/graph/js/editorView.js"></script>
 
         <script id="wrapMain" type="text/template">
         <%= close %>

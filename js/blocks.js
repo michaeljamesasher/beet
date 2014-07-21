@@ -22,8 +22,7 @@ function addBlock(block){ // apparently shouldn't go in model.initialize http://
     return view;
 }
 
-
-  blocks.fetch({
+blocks.fetch({
              url:'/graph/data/init.json', 
              success: function(collection){ 
 
