@@ -24,6 +24,7 @@ function addBlock(block){ // apparently shouldn't go in model.initialize http://
 
 blocks.fetch({
              url:'/graph/data/init.json', 
+             // url:'/graph/data/sum_map_demo.json', 
              success: function(collection){ 
 
               var promises = [];
@@ -51,21 +52,28 @@ blocks.fetch({
                       });
 
                   });
+
+                  // initialize
+                  _.each(frames,function(frame){ frame.main() });
+
+
               });
 
             },
              error: function(collection, response, options){ console.log("error loading graph"); },
             });
 
-  setTimeout(function(){
-    var block = new BlockModel({"x": 280, "y":400, "main": "/graph/pages/handsontable.html"});
-    blocks.add(block);
-    addBlock(block);
+  // setTimeout(function(){
+  //   var block = new BlockModel({"x": 280, "y":400, "main": "/graph/pages/handsontable.html"});
+  //   blocks.add(block);
+  //   addBlock(block);
 
-  }, 1000); // fetch resets the collection
+  // }, 1000); // fetch resets the collection
 
   // addBlock({ "x": 100, "y":280, "main": "/graph/pages/jquery-ui-slider.html"});
   // addBlock({ "x": 280, "y":280, "main": "/graph/pages/js.html"});
 
 
 // use listenTo rather than model.on  // check ozkatz.github.io/avoiding-common-backbonejs-pitfalls.html
+
+//TODO replace views with react.js

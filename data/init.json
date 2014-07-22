@@ -1,6 +1,5 @@
 [
-{"_id":"c3", "x": 100, "y":280, "main": "/graph/pages/jquery-ui-slider.html", "savedLinks":[{"toId":"c2","input":"b"},{"toId":"c5","input":"lng"}]},
-{"_id":"c4", "x": 100, "y":100, "main": "/graph/pages/jquery-ui-slider.html", "savedLinks":[{"toId":"c2","input":"a"},{"toId":"c5","input":"lat"}]},
-{"_id":"c2", "x": 280, "y":100, "main": "/graph/pages/js.html"},
-{"_id":"c5", "x": 280, "y":280, "main": "/graph/pages/leaflet.html"}
+{"_id":"c3", "x": 50, "y":50, "main": "/graph/pages/handsontable.html", "savedLinks":[{"toId":"c2","input":"matrix"}]},
+{"_id":"c2", "x": 250, "y":50, "main": "/graph/pages/handsontableToNvd3.html","savedLinks":[{"toId":"c5","input":"data"}]},
+{"_id":"c5", "x": 400, "y":50, "main": "/graph/pages/nvd3.html"}
 ]

@@ -24,9 +24,103 @@
 
         <div id="graphBox"></div>
         <div id="menuBox">
+        <div id='description'>
+          
+<h2> BEET </h2>
+        <h4>(supposedly) Beats Excel Every Time</h4>
 
-<!--             <span id="position"></span>
-            <div id="dragbar"></div> -->
+
+The purpose of BEET is to bring together the rapidly evolving world of web based data analysis and visualisation tools. Most of these libraries do a few things really well, but to combine theme takes an experienced software developper. BEET lets you access thousands of tools accross the web, and combine them without a single line of code. But for the curious or experienced, editing the underlying code is just as easy.  
+
+<h4> Example Libraries</h4> 
+            <a href="http://handsontable.com/"> HandsonTable</a> for an editable table.
+            <a href="http://leafletjs.com/">Leaflet.js</a> for maps.
+            <a href="http://d3js.org/">D3.js</a> for beatiful graphics and heaps of utility functions.
+
+            <a href="http://mathjs.org/">math.js</a> for more maths functions.
+            <a href="http://www.mathjax.org/">MathJax</a> to render it.
+
+            <a href="http://www.macwright.org/simple-statistics/">Simple Statistics</a> or <a href="http://jstat.github.io/">jStat</a> for stats.
+
+            <a href="https://github.com/michael/github"> Github API wrapper for saving, sharing, and version control.</a>
+
+
+            <a href="http://underscorejs.org/">Undercore.js</a> for a few utility functions.
+            <a href="http://jquery.com/">jQuery</a> of course.
+
+<h4> Example Data APIs</h4>
+<a href="http://data.un.org/Host.aspx?Content=API"> UN </a>.
+<a href="http://data.worldbank.org/data-catalog/world-development-indicators"> World bank</a>.
+<a href="https://support.google.com/fusiontables/answer/2573812?hl=en&ref_topic=1652595"> Google fusion tables</a>
+
+
+
+
+<!--
+http://www.abs.gov.au/ausstats/abs@.nsf/Lookup/1407.0.55.002main+features32013
+http://stats.oecd.org/OpenDataAPI/Json.htm
+http://data.gov.au/
+
+           
+http://scriptular.com/
+http://misoproject.com/dataset/
+https://github.com/jsoma/tabletop
+            // simple editable: http://mindmup.github.io/editable-table/
+
+            // thanks to http://jsfiddle.net/ondras/hYfN3/
+
+Block requierments:
+main function
+default is good - in an except loop or perhaps if (! input) input = default
+
+
+  <a href="http://ace.c9.io/#nav=about"> Ace editor </a> for the feature-packed code editor.
+            <a href="https://github.com/replit/jq-console"> Repl.it jq-console for the console.</a> 
+
+          -->
+            
+           
+
+<!--             http://chandoo.org/wp/2013/04/16/learn-top-10-excel-features/
+
+            http://office.microsoft.com/en-au/excel-help/excel-functions-by-category-HP005204211.aspx
+            VBA 
+            pivot tables
+            charts
+            lookup formulas
+            sorting/filtering
+            conditional formatting
+            drop down forms and validation
+            PowerPivot, Data Explorer & Data Analysis features -->
+
+
+<!-- 
+  <table>
+    <tr>
+      <td></td>
+      <td>BEET</td>
+      <td>Excel</td>
+    </tr>
+    <tr>
+      <td> Number of questions tagged on Stack Exchange http://stackoverflow.com/tags </td>
+      <td> 658052+ javascript, 320302+ html , 236731+ css</td>
+      <td> 29888+ vba, 19068+ excel-vba, 48577+ excel</td>
+    </tr>
+    <tr>
+      <td> Open source projects on Github http://langpop.com/ https://api.github.com/search/repositories?q=language:javascript</td>
+      <td> javascript 845914+ </td>
+      <td> visual basic 37197+ </td>
+    </tr>
+  </table>
+ -->
+
+
+        </div>
+        
+<!--        
+            <span id="position"></span>
+            <div id="dragbar"></div> 
+          -->
             <div id="resize" class='menu'><i class='icon-left-open'></i><i class='icon-right-open'></i></div>
             <div id='file-image' class='menu'><i class='icon-file-image'></i></div>
             <div id='file-code' class='menu'><i class='icon-file-code'></i></div>
@@ -102,7 +196,6 @@
               }
             });
             parent.blocks.get('<%= id %>').get('inputValues').on('change',main);
-
 
 
         </script>

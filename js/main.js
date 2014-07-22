@@ -14,8 +14,11 @@ http://codepen.io/billdwhite/pen/lCAdi
 
 TODO
 titles for blocks
+just include beet_wrap_main.js as a script in all blocks rather than being clever
+update block on code change
+window resize draw
 gist save/load/fork
-
+react.js views?
 */
 
 

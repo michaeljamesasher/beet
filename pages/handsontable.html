@@ -13,15 +13,22 @@
         <link rel="stylesheet" href="/third/normalize.min.css">
         <link rel="stylesheet" href="/third/handsontable.min.css">
         <style type="text/css">
+            html,body, #tableBox{
+                width: 100%;
+                height: 100%;
+                position: absolute;
+            }
         </style>
     </head>
     <body> 
         <!--[if lt IE 7]>
             <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
         <![endif]-->
+
+        <div id='tableBox'></div>
+
 <!-- 
        
-
         <!--<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script> -->
         <script>window.jQuery || document.write('<script src="/third/jquery-1.11.0.min.js"><\/script>')</script>
         <script src="/third/handsontable.min.js"></script>
@@ -36,7 +43,7 @@
               ["2010", 30, 15, 12, 13]
             ];
 
-            var $container = $("body");
+            var $container = $("#tableBox");
 
             // settings, see http://handsontable.com/
             $container.handsontable({
@@ -51,7 +58,10 @@
               // colHeaders: true,
               contextMenu: true ,
               afterChange: function(changes, source) {
-                //console.log('table changes');
+                main();
+              },
+              afterSelectionEnd: function () {
+                main();
               }
             });
 
@@ -61,48 +71,12 @@
             $container.handsontable('render'); //refresh the grid to display the new value
 
             function main(){
-                return table.getData();
+                // returns an array of rows, each row an array of cells
+                // return table.getData();
+                if (table) return table.getData.apply(null,table.getSelected());
             }
 
-            // alternatives to handsontable
-            // =====================================
-
-            // simple editable: http://mindmup.github.io/editable-table/
-
-            // thanks to http://jsfiddle.net/ondras/hYfN3/
-            // super concise
-
-            // for (var i=0; i<6; i++) {
-            //     var row = document.querySelector("table").insertRow(-1);
-            //     for (var j=0; j<6; j++) {
-            //         var letter = String.fromCharCode("A".charCodeAt(0)+j-1);
-            //         row.insertCell(-1).innerHTML = i&&j ? "<input id='"+ letter+i +"'/>" : i||letter;
-            //     }
-            // }
-
-            // var DATA={}, INPUTS=[].slice.call(document.querySelectorAll("input"));
-            // INPUTS.forEach(function(elm) {
-            //     elm.onfocus = function(e) {
-            //         e.target.value = localStorage[e.target.id] || "";
-            //     };
-            //     elm.onblur = function(e) {
-            //         localStorage[e.target.id] = e.target.value;
-            //         computeAll();
-            //     };
-            //     var getter = function() {
-            //         var value = localStorage[elm.id] || "";
-            //         if (value.charAt(0) == "=") {
-            //             with (DATA) return eval(value.substring(1));
-            //         } else { return isNaN(parseFloat(value)) ? value : parseFloat(value); }
-            //     };
-            //     Object.defineProperty(DATA, elm.id, {get:getter});
-            //     Object.defineProperty(DATA, elm.id.toLowerCase(), {get:getter});
-            // });
-            // (window.computeAll = function() {
-            //     INPUTS.forEach(function(elm) { try { elm.value = DATA[elm.id]; } catch(e) {} });
-            // })();
-
-
+            // $container.on('mouseup',function(){ main(); })
 
 
 
